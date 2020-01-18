@@ -38,7 +38,7 @@ function main() {
     //main height * 5 - ((width - 500) / 100) * 0.18
     //move up = ((width - 500) / 100) * 0.08
     //I'll just leave these comments here so I know my reasoning for all this later
-    const mainHeight = canvas.clientWidth / 960 * (5 - ((canvas.clientWidth - 500) / 100) * 0.19);
+    const mainHeight = canvas.clientWidth / 960 * (4.8 - ((canvas.clientWidth - 500) / 100) * 0.17);
     const moveUpBy = ((canvas.clientWidth - 500) / 100) * 0.08;
 
     const prism = new THREE.Geometry();
