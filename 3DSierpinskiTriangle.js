@@ -21,18 +21,33 @@ function main() {
         scene.add(light);
     }
 
-    const mainHeight = canvas.clientWidth / 960 * 2.5;//gives 2 when at ideal screen width, scales appropriately otherwise
-    //const moveUpBy = 1.2;//canvas.clientHeight / (canvas.clientHeight / 1.5);
-    console.log(mainHeight);
-    console.log(canvas.clientWidth);
+    //mainHeight uses 960 as half of the desktop width to give a default prism height of about 2
+    //when on mobile, no move up by and main height * 5
+    //when on desktop, 1.2 move up by and main height * 2.4
+    //when on desktop, width is 1920
+    //when on mobile width is 500
+    //ratio between widths is 3.84
+    //ratio for multiplying main height is 2.08
+    //so I need to use the ratio of the widths to scale the two other variables by adding a step relative to the width ratio
+    //for every 3.84 over 500, subtract
+    //1420 may be too many small, insignificant steps
+    //142 steps for going between 5 and 2.4 along with 0 to 1.2
+    //2.6 / 142 is 0.018 and 1.2 / 142 is 0.008
+    //14.2 steps
+    //2.6 / 14.2 is 0.18 and 1.2 / 14.2 is 0.08
+    //main height * 5 - ((width - 500) / 100) * 0.18
+    //move up = ((width - 500) / 100) * 0.08
+    //I'll just leave these comments here so I know my reasoning for all this later
+    const mainHeight = canvas.clientWidth / 960 * (5 - ((canvas.clientWidth - 500) / 100) * 0.19);
+    const moveUpBy = ((canvas.clientWidth - 500) / 100) * 0.08;
 
     const prism = new THREE.Geometry();
     prism.vertices.push(
-        new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2)/* + moveUpBy*/, (mainHeight / 2)),//0
-        new THREE.Vector3((mainHeight / 2), -(mainHeight / 2)/* + moveUpBy*/, (mainHeight / 2)),//1
-        new THREE.Vector3(0, (mainHeight / 2)/* + moveUpBy*/, 0),//2
-        new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2)/* + moveUpBy*/, -(mainHeight / 2)),//3
-        new THREE.Vector3((mainHeight / 2), -(mainHeight / 2)/* + moveUpBy*/, -(mainHeight / 2))//4
+        new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2)),//0
+        new THREE.Vector3((mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2)),//1
+        new THREE.Vector3(0, (mainHeight / 2) + moveUpBy, 0),//2
+        new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, -(mainHeight / 2)),//3
+        new THREE.Vector3((mainHeight / 2), -(mainHeight / 2) + moveUpBy, -(mainHeight / 2))//4
     );
 
     /*
@@ -44,7 +59,7 @@ function main() {
     */
 
     prism.faces.push(
-        // front
+        //front
         new THREE.Face3(0, 1, 2),
         //right
         new THREE.Face3(1, 4, 2),
