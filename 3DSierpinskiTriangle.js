@@ -40,7 +40,7 @@ function main() {
     //I'll just leave these comments here so I know my reasoning for all this later
     //parameters have changed after testing, but the math is still relevant
     const mainHeight = canvas.clientWidth / 960 * (2 + ((canvas.clientWidth - 500) / 100) * 0.03);
-    const moveUpBy = ((canvas.clientWidth - 500) / 100) * 0.05;
+    const moveUpBy = ((canvas.clientWidth - 500) / 100) * 0.09;
 
     const prism = new THREE.Geometry();
     prism.vertices.push(
