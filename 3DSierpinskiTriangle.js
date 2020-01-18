@@ -21,13 +21,18 @@ function main() {
         scene.add(light);
     }
 
+    const mainHeight = canvas.clientWidth / 960 * 2.5;//gives 2 when at ideal screen width, scales appropriately otherwise
+    //const moveUpBy = 1.2;//canvas.clientHeight / (canvas.clientHeight / 1.5);
+    console.log(mainHeight);
+    console.log(canvas.clientWidth);
+
     const prism = new THREE.Geometry();
     prism.vertices.push(
-        new THREE.Vector3(-1, -1, 1),//0
-        new THREE.Vector3(1, -1, 1),//1
-        new THREE.Vector3(0, 1, 0),//2
-        new THREE.Vector3(-1, -1, -1),//3
-        new THREE.Vector3(1, -1, -1)//4
+        new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2)/* + moveUpBy*/, (mainHeight / 2)),//0
+        new THREE.Vector3((mainHeight / 2), -(mainHeight / 2)/* + moveUpBy*/, (mainHeight / 2)),//1
+        new THREE.Vector3(0, (mainHeight / 2)/* + moveUpBy*/, 0),//2
+        new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2)/* + moveUpBy*/, -(mainHeight / 2)),//3
+        new THREE.Vector3((mainHeight / 2), -(mainHeight / 2)/* + moveUpBy*/, -(mainHeight / 2))//4
     );
 
     /*
@@ -52,6 +57,11 @@ function main() {
         new THREE.Face3(3, 4, 1)
     );
 
+    //Start with one large prism
+    //wait, could it be as easy as using the same code as the large prism but with a reduce by variable parameter?
+    //the size of prisms reduces by half each time
+    //four new prisms take the place of one old prism
+
     function makePrismInstance(prism, color, x) {
         const material = new THREE.MeshBasicMaterial({color});
 
@@ -64,68 +74,9 @@ function main() {
 
     const prisms = [
         makePrismInstance(prism, 0x44FF44,  0),
-        makePrismInstance(prism, 0x4444FF, -4),
-        makePrismInstance(prism, 0xFF4444,  4),
+        //makePrismInstance(prism, 0x4444FF, -4),
+        //makePrismInstance(prism, 0xFF4444,  4),
     ];
-
-    const geometry = new THREE.Geometry();
-    geometry.vertices.push(
-        new THREE.Vector3(-1, -1,  1),  // 0
-        new THREE.Vector3( 1, -1,  1),  // 1
-        new THREE.Vector3(-1,  1,  1),  // 2
-        new THREE.Vector3( 1,  1,  1),  // 3
-        new THREE.Vector3(-1, -1, -1),  // 4
-        new THREE.Vector3( 1, -1, -1),  // 5
-        new THREE.Vector3(-1,  1, -1),  // 6
-        new THREE.Vector3( 1,  1, -1),  // 7
-    );
-
-    /*
-         6----7
-        /|   /|
-       2----3 |
-       | |  | |
-       | 4--|-5
-       |/   |/
-       0----1
-    */
-
-    geometry.faces.push(
-        // front
-        new THREE.Face3(0, 3, 2),
-        new THREE.Face3(0, 1, 3),
-        // right
-        new THREE.Face3(1, 7, 3),
-        new THREE.Face3(1, 5, 7),
-        // back
-        new THREE.Face3(5, 6, 7),
-        new THREE.Face3(5, 4, 6),
-        // left
-        new THREE.Face3(4, 2, 6),
-        new THREE.Face3(4, 0, 2),
-        // top
-        new THREE.Face3(2, 7, 6),
-        new THREE.Face3(2, 3, 7),
-        // bottom
-        new THREE.Face3(4, 1, 0),
-        new THREE.Face3(4, 5, 1),
-    );
-
-    function makeInstance(geometry, color, x) {
-        const material = new THREE.MeshBasicMaterial({color});
-
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
-
-        cube.position.x = x;
-        return cube;
-    }
-
-    /*const cubes = [
-        makeInstance(geometry, 0x44FF44,  0),
-        makeInstance(geometry, 0x4444FF, -4),
-        makeInstance(geometry, 0xFF4444,  4),
-    ];*/
 
     function resizeRendererToDisplaySize(renderer) {
         const canvas = renderer.domElement;
@@ -143,13 +94,16 @@ function main() {
 
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
-            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            //if(canvas.clientWidth > canvas.clientHeight)
+                camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            //else
+                //camera.aspect = canvas.clientHeight / canvas.clientWidth;
             camera.updateProjectionMatrix();
         }
 
         prisms.forEach((prism, ndx) => {
             const speed = 1 + ndx * .1;
-            const rot = time * speed;
+            const rot = time * speed / 2;
             //prism.rotation.x = rot;
             prism.rotation.y = rot;
         });
