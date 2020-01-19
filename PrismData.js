@@ -1,6 +1,6 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r112/build/three.module.js';
 
-class PrismData {
+export class PrismData {
     constructor(bottomFrontLeftX, bottomFrontLeftY, bottomFrontLeftZ, currentHeight) {
         this.x = bottomFrontLeftX;
         this.y = bottomFrontLeftY;
@@ -14,11 +14,11 @@ class PrismData {
         //wait again, I could even try reserving the old face data since the shape is the same, like going from
         //one to adding four total to adding four per shape in there already
         return [
-            new THREE.Vector3(x, y, z),//0
-            new THREE.Vector3(x + this.height, y, z),//1
-            new THREE.Vector3(x + this.height / 2, this.height, z + this.height / 2),//2
-            new THREE.Vector3(x, y, z + this.height),//3
-            new THREE.Vector3(x + this.height, y, z + this.height)//4
+            new THREE.Vector3(this.x, this.y, this.z),//0
+            new THREE.Vector3(this.x + this.height, this.y, this.z),//1
+            new THREE.Vector3(this.x + this.height / 2, this.y + this.height, -(this.z - this.height / 2)),//2
+            new THREE.Vector3(this.x, this.y, -(this.z)),//3
+            new THREE.Vector3(this.x + this.height, this.y, -(this.z))//4
         ];
 
         /*
@@ -32,11 +32,11 @@ class PrismData {
 
     getNextIterationVertices() {
         return [
-            new THREE.Vector3(x, y, z),//0
-            new THREE.Vector3(x + this.height / 2, y, z),//1
-            new THREE.Vector3(x + this.height / 2, y, z + this.height / 2),//2
-            new THREE.Vector3(x, y, z + this.height / 2),//3
-            new THREE.Vector3(x + this.height / 2, y + this.height / 2, z + this.height / 2)//4
+            new THREE.Vector3(this.x, this.y, this.z),//0
+            new THREE.Vector3(this.x + this.height / 2, this.y, this.z),//1
+            new THREE.Vector3(this.x + this.height / 2, this.y, this.z + this.height / 2),//2
+            new THREE.Vector3(this.x, this.y, this.z + this.height / 2),//3
+            new THREE.Vector3(this.x + this.height / 2, this.y + this.height / 2, this.z + this.height / 2)//4
         ];
 
         /*

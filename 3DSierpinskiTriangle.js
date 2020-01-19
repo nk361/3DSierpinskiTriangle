@@ -1,4 +1,5 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r112/build/three.module.js';
+import {PrismData} from "./PrismData.js";
 
 function main() {
     const canvas = document.querySelector('#mainCanvas');
@@ -51,14 +52,40 @@ function main() {
     //I'm also unsure if I could make the entire shape loop correct by letting it connect the triangles
     //wait, yes! I can!
 
-    const prism = new THREE.Geometry();
+    let pD = [new PrismData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
+
+    const firstPrism = new THREE.Geometry();
+    const vertices = pD[0].generateVertices();
+    for(let i = 0; i < vertices.length; i++)
+        firstPrism.vertices.push(vertices[i]);
+
+    let amountOfVerticesPerShape = 5;
+    let amountOfPrisms = vertices.length / amountOfVerticesPerShape;
+
+    for(let i = 0; i < amountOfPrisms; i++) {
+        firstPrism.faces.push(
+            //front
+            new THREE.Face3(0 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
+            //right
+            new THREE.Face3(1 + i * amountOfVerticesPerShape, 4 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
+            //back
+            new THREE.Face3(4 + i * amountOfVerticesPerShape, 3 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
+            //left
+            new THREE.Face3(3 + i * amountOfVerticesPerShape, 0 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
+            //bottom
+            new THREE.Face3(3 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape, 0 + i * amountOfVerticesPerShape),
+            new THREE.Face3(3 + i * amountOfVerticesPerShape, 4 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape)
+        );
+    }
+
+    /*const prism = new THREE.Geometry();
     prism.vertices.push(
         new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2)),//0
         new THREE.Vector3((mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2)),//1
         new THREE.Vector3(0, (mainHeight / 2) + moveUpBy, 0),//2
         new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, -(mainHeight / 2)),//3
         new THREE.Vector3((mainHeight / 2), -(mainHeight / 2) + moveUpBy, -(mainHeight / 2))//4
-    );
+    );*/
 
     /*
            2
@@ -68,7 +95,7 @@ function main() {
        0----1
     */
 
-    prism.faces.push(
+    /*prism.faces.push(
         //front
         new THREE.Face3(0, 1, 2),
         //right
@@ -80,14 +107,28 @@ function main() {
         //bottom
         new THREE.Face3(3, 1, 0),
         new THREE.Face3(3, 4, 1)
-    );
+    );*/
 
     //Start with one large prism
     //wait, could it be as easy as using the same code as the large prism but with a reduce by variable parameter?
     //the size of prisms reduces by half each time
     //four new prisms take the place of one old prism
 
-    function makePrismInstance(prism, color, x) {
+    function makeFractalInstance(fractal, color, x) {
+        const material = new THREE.MeshBasicMaterial({color});
+
+        const frctl = new THREE.Mesh(fractal, material);
+        scene.add(frctl);
+
+        frctl.position.x = x;
+        return frctl;
+    }
+
+    const fractals = [
+        makeFractalInstance(firstPrism, 0x44FF44, 0)
+    ];
+
+    /*function makePrismInstance(prism, color, x) {
         const material = new THREE.MeshBasicMaterial({color});
 
         const prsm = new THREE.Mesh(prism, material);
@@ -95,13 +136,13 @@ function main() {
 
         prsm.position.x = x;
         return prsm;
-    }
+    }*/
 
-    const prisms = [
+    /*const prisms = [
         makePrismInstance(prism, 0x44FF44,  0),
         //makePrismInstance(prism, 0x4444FF, -4),
         //makePrismInstance(prism, 0xFF4444,  4),
-    ];
+    ];*/
 
     function resizeRendererToDisplaySize(renderer) {
         const canvas = renderer.domElement;
@@ -126,12 +167,19 @@ function main() {
             camera.updateProjectionMatrix();
         }
 
-        prisms.forEach((prism, ndx) => {
+        fractals.forEach((fractal, ndx) => {
+            const speed = 1 + ndx * .1;
+            const rot = time * speed / 2;
+            //fractal.rotation.x = rot;
+            fractal.rotation.y = rot;
+        });
+
+        /*prisms.forEach((prism, ndx) => {
             const speed = 1 + ndx * .1;
             const rot = time * speed / 2;
             //prism.rotation.x = rot;
             prism.rotation.y = rot;
-        });
+        });*/
 
         renderer.render(scene, camera);
 
