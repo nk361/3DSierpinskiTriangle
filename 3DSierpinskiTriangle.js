@@ -42,6 +42,15 @@ function main() {
     const mainHeight = canvas.clientWidth / 960 * (2 + ((canvas.clientWidth - 500) / 100) * 0.03);
     const moveUpBy = ((canvas.clientWidth - 500) / 100) * 0.09;
 
+    //the information I need to generate these prisms is their left, bottom, front corner point and their height
+    //height will be half the previous iteration's
+    //the points I'll get are the previous bottom left front point, that same point but moved back half previous height, moved right half previous height, and moved up half previous height while also back and right one quarter previous height
+    //drawing five new prisms per one previous prism, 4 on the bottom, one on top
+    //luckily the triangles are always made in the same vertex order
+    //I don't know if separate prisms will rotate at different rates
+    //I'm also unsure if I could make the entire shape loop correct by letting it connect the triangles
+    //wait, yes! I can!
+
     const prism = new THREE.Geometry();
     prism.vertices.push(
         new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2)),//0
