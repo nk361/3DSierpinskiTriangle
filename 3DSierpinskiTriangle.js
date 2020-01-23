@@ -1,5 +1,5 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r112/build/three.module.js';
-import {PrismData} from "./PrismData.js";
+import {PyramidData} from "./PyramidData.js";
 
 function main() {
     const canvas = document.querySelector('#mainCanvas');
@@ -52,7 +52,7 @@ function main() {
     //I'm also unsure if I could make the entire shape loop correct by letting it connect the triangles
     //wait, yes! I can!
 
-    let pD = [new PrismData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
+    let pD = [new PyramidData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
 
     console.log("first height: " + mainHeight / 2);
 
@@ -76,7 +76,7 @@ function main() {
     console.log("nextIterationVertices:");
     console.log(nextIterationVertices);
     for(let i = 0; i < nextIterationVertices.length; i++)
-        pD.push(new PrismData(nextIterationVertices[i].x, nextIterationVertices[i].y, nextIterationVertices[i].z, pD[0].height / 2));
+        pD.push(new PyramidData(nextIterationVertices[i].x, nextIterationVertices[i].y, nextIterationVertices[i].z, pD[0].height / 2));
     pD.shift();
 
     console.log("pD:");

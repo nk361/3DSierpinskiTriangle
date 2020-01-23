@@ -1,6 +1,6 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r112/build/three.module.js';
 
-export class PrismData {
+export class PyramidData {
     constructor(bottomFrontLeftX, bottomFrontLeftY, bottomFrontLeftZ, currentHeight) {
         this.x = bottomFrontLeftX;
         this.y = bottomFrontLeftY;
