@@ -54,13 +54,55 @@ function main() {
 
     let pD = [new PrismData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
 
-    const firstPrism = new THREE.Geometry();
-    const vertices = pD[0].generateVertices();
-    for(let i = 0; i < vertices.length; i++)
-        firstPrism.vertices.push(vertices[i]);
+    console.log("first height: " + mainHeight / 2);
 
-    let amountOfVerticesPerShape = 5;
+    const firstPrism = new THREE.Geometry();
+    let vertices = [];
+    //let vertices = pD[0].generateVertices();
+    //for(let i = 0; i < vertices.length; i++)
+        //firstPrism.vertices.push(vertices[i]);
+
+    let amountOfVerticesPerShape = 5;//firstPrism.vertices.length;
+
+    console.log("first generation vertices");
+    console.log(pD[0].generateVertices());
+
+    /*//test first shape again
+    const firstShapeVertices = pD[0].generateVertices();
+    for(let i = 0; i < firstShapeVertices.length; i++)
+        vertices.push(firstShapeVertices[i]);*/
+
+    const nextIterationVertices = pD[0].getNextIterationVertices();
+    console.log("nextIterationVertices:");
+    console.log(nextIterationVertices);
+    for(let i = 0; i < nextIterationVertices.length; i++)
+        pD.push(new PrismData(nextIterationVertices[i].x, nextIterationVertices[i].y, nextIterationVertices[i].z, pD[0].height / 2));
+    pD.shift();
+
+    console.log("pD:");
+    console.log(pD);
+
+
+    //vertices = [];
+    for(let i = 0; i < pD.length; i++) {
+        //if(i === 2) {
+            let currentVertices = pD[i].generateVertices();
+            console.log("Vertex:" + i);
+            console.log(currentVertices);
+            for(let j = 0; j < currentVertices.length; j++)
+                vertices.push(currentVertices[j]);
+        //}
+    }
+
+    firstPrism.vertices = vertices;
+
     let amountOfPrisms = vertices.length / amountOfVerticesPerShape;
+    console.log("amountOfPrisms:");
+    console.log(amountOfPrisms);
+
+    //console.log(vertices.length);
+    //console.log(amountOfVerticesPerShape);
+    //amountOfPrisms = 5;
 
     for(let i = 0; i < amountOfPrisms; i++) {
         firstPrism.faces.push(

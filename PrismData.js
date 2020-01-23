@@ -16,9 +16,9 @@ export class PrismData {
         return [
             new THREE.Vector3(this.x, this.y, this.z),//0
             new THREE.Vector3(this.x + this.height, this.y, this.z),//1
-            new THREE.Vector3(this.x + this.height / 2, this.y + this.height, -(this.z - this.height / 2)),//2
-            new THREE.Vector3(this.x, this.y, -(this.z)),//3
-            new THREE.Vector3(this.x + this.height, this.y, -(this.z))//4
+            new THREE.Vector3(this.x + this.height / 2, this.y + this.height, (this.z - this.height / 2)),//2
+            new THREE.Vector3(this.x, this.y, (this.z - this.height)),//3
+            new THREE.Vector3(this.x + this.height, this.y, (this.z - this.height))//4
         ];
 
         /*
@@ -34,9 +34,9 @@ export class PrismData {
         return [
             new THREE.Vector3(this.x, this.y, this.z),//0
             new THREE.Vector3(this.x + this.height / 2, this.y, this.z),//1
-            new THREE.Vector3(this.x + this.height / 2, this.y, this.z + this.height / 2),//2
-            new THREE.Vector3(this.x, this.y, this.z + this.height / 2),//3
-            new THREE.Vector3(this.x + this.height / 2, this.y + this.height / 2, this.z + this.height / 2)//4
+            new THREE.Vector3(this.x + this.height / 2, this.y, this.z - this.height / 2),//2
+            new THREE.Vector3(this.x, this.y, this.z - this.height / 2),//3
+            new THREE.Vector3(this.x + this.height / 4, this.y + this.height / 2, this.z - this.height / 4)//4
         ];
 
         /*
