@@ -54,15 +54,15 @@ function main() {
 
     let pD = [new PyramidData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
 
-    console.log("first height: " + mainHeight / 2);
+    console.log("first height: " + mainHeight);
 
-    const firstPrism = new THREE.Geometry();
+    const fractal = new THREE.Geometry();
     let vertices = [];
     //let vertices = pD[0].generateVertices();
     //for(let i = 0; i < vertices.length; i++)
-        //firstPrism.vertices.push(vertices[i]);
+        //fractal.vertices.push(vertices[i]);
 
-    let amountOfVerticesPerShape = 5;//firstPrism.vertices.length;
+    let amountOfVerticesPerShape = 5;//fractal.vertices.length;
 
     console.log("first generation vertices");
     console.log(pD[0].generateVertices());
@@ -72,29 +72,38 @@ function main() {
     for(let i = 0; i < firstShapeVertices.length; i++)
         vertices.push(firstShapeVertices[i]);*/
 
-    const nextIterationVertices = pD[0].getNextIterationVertices();
-    console.log("nextIterationVertices:");
-    console.log(nextIterationVertices);
-    for(let i = 0; i < nextIterationVertices.length; i++)
-        pD.push(new PyramidData(nextIterationVertices[i].x, nextIterationVertices[i].y, nextIterationVertices[i].z, pD[0].height / 2));
-    pD.shift();
+    for(let iterations = 8; iterations > 0; iterations--) {
+        if(iterations > 1) {
+            const pDFrozenLength = pD.length;
+            for(let i = 0; i < pDFrozenLength; i++) {
+                const nextIterationVertices = pD[i].getNextIterationVertices();
+                console.log("nextIterationVertices:");
+                console.log(nextIterationVertices);
+                for(let i = 0; i < nextIterationVertices.length; i++)
+                    pD.push(new PyramidData(nextIterationVertices[i].x, nextIterationVertices[i].y, nextIterationVertices[i].z, pD[0].height / 2));
+            }
 
-    console.log("pD:");
-    console.log(pD);
+            for(let i = 0; i < pDFrozenLength; i++)
+                pD.shift();
+        }
+
+        console.log("pD:");
+        console.log(pD);
 
 
-    //vertices = [];
-    for(let i = 0; i < pD.length; i++) {
-        //if(i === 2) {
+        vertices = [];
+        for(let i = 0; i < pD.length; i++) {
+            //if(i === 2) {
             let currentVertices = pD[i].generateVertices();
             console.log("Vertex:" + i);
             console.log(currentVertices);
             for(let j = 0; j < currentVertices.length; j++)
                 vertices.push(currentVertices[j]);
-        //}
+            //}
+        }
     }
 
-    firstPrism.vertices = vertices;
+    fractal.vertices = vertices;
 
     let amountOfPrisms = vertices.length / amountOfVerticesPerShape;
     console.log("amountOfPrisms:");
@@ -105,7 +114,7 @@ function main() {
     //amountOfPrisms = 5;
 
     for(let i = 0; i < amountOfPrisms; i++) {
-        firstPrism.faces.push(
+        fractal.faces.push(
             //front
             new THREE.Face3(0 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
             //right
@@ -167,7 +176,7 @@ function main() {
     }
 
     const fractals = [
-        makeFractalInstance(firstPrism, 0x44FF44, 0)
+        makeFractalInstance(fractal, 0x44FF44, 0)
     ];
 
     /*function makePrismInstance(prism, color, x) {
