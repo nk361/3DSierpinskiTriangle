@@ -40,6 +40,7 @@ function main() {
     //move up = ((width - 500) / 100) * 0.08
     //I'll just leave these comments here so I know my reasoning for all this later
     //parameters have changed after testing, but the math is still relevant
+
     const mainHeight = canvas.clientWidth / 960 * (2 + ((canvas.clientWidth - 500) / 100) * 0.03);
     const moveUpBy = ((canvas.clientWidth - 500) / 100) * 0.09;
 
@@ -54,31 +55,17 @@ function main() {
 
     let pD = [new PyramidData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
 
-    console.log("first height: " + mainHeight);
-
     const fractal = new THREE.Geometry();
     let vertices = [];
-    //let vertices = pD[0].generateVertices();
-    //for(let i = 0; i < vertices.length; i++)
-        //fractal.vertices.push(vertices[i]);
 
     let amountOfVerticesPerShape = 5;//fractal.vertices.length;
 
-    console.log("first generation vertices");
-    console.log(pD[0].generateVertices());
-
-    /*//test first shape again
-    const firstShapeVertices = pD[0].generateVertices();
-    for(let i = 0; i < firstShapeVertices.length; i++)
-        vertices.push(firstShapeVertices[i]);*/
-
+    //change the amount of iterations to perform here
     for(let iterations = 8; iterations > 0; iterations--) {
         if(iterations > 1) {
             const pDFrozenLength = pD.length;
             for(let i = 0; i < pDFrozenLength; i++) {
                 const nextIterationVertices = pD[i].getNextIterationVertices();
-                console.log("nextIterationVertices:");
-                console.log(nextIterationVertices);
                 for(let i = 0; i < nextIterationVertices.length; i++)
                     pD.push(new PyramidData(nextIterationVertices[i].x, nextIterationVertices[i].y, nextIterationVertices[i].z, pD[0].height / 2));
             }
@@ -87,31 +74,16 @@ function main() {
                 pD.shift();
         }
 
-        console.log("pD:");
-        console.log(pD);
-
-
         vertices = [];
         for(let i = 0; i < pD.length; i++) {
-            //if(i === 2) {
             let currentVertices = pD[i].generateVertices();
-            console.log("Vertex:" + i);
-            console.log(currentVertices);
             for(let j = 0; j < currentVertices.length; j++)
                 vertices.push(currentVertices[j]);
-            //}
         }
     }
-
     fractal.vertices = vertices;
 
     let amountOfPrisms = vertices.length / amountOfVerticesPerShape;
-    console.log("amountOfPrisms:");
-    console.log(amountOfPrisms);
-
-    //console.log(vertices.length);
-    //console.log(amountOfVerticesPerShape);
-    //amountOfPrisms = 5;
 
     for(let i = 0; i < amountOfPrisms; i++) {
         fractal.faces.push(
@@ -128,37 +100,6 @@ function main() {
             new THREE.Face3(3 + i * amountOfVerticesPerShape, 4 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape)
         );
     }
-
-    /*const prism = new THREE.Geometry();
-    prism.vertices.push(
-        new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2)),//0
-        new THREE.Vector3((mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2)),//1
-        new THREE.Vector3(0, (mainHeight / 2) + moveUpBy, 0),//2
-        new THREE.Vector3(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, -(mainHeight / 2)),//3
-        new THREE.Vector3((mainHeight / 2), -(mainHeight / 2) + moveUpBy, -(mainHeight / 2))//4
-    );*/
-
-    /*
-           2
-          / \
-         3-|--4
-        /|  |/
-       0----1
-    */
-
-    /*prism.faces.push(
-        //front
-        new THREE.Face3(0, 1, 2),
-        //right
-        new THREE.Face3(1, 4, 2),
-        //back
-        new THREE.Face3(4, 3, 2),
-        //left
-        new THREE.Face3(3, 0, 2),
-        //bottom
-        new THREE.Face3(3, 1, 0),
-        new THREE.Face3(3, 4, 1)
-    );*/
 
     //Start with one large prism
     //wait, could it be as easy as using the same code as the large prism but with a reduce by variable parameter?
@@ -179,22 +120,6 @@ function main() {
         makeFractalInstance(fractal, 0x44FF44, 0)
     ];
 
-    /*function makePrismInstance(prism, color, x) {
-        const material = new THREE.MeshBasicMaterial({color});
-
-        const prsm = new THREE.Mesh(prism, material);
-        scene.add(prsm);
-
-        prsm.position.x = x;
-        return prsm;
-    }*/
-
-    /*const prisms = [
-        makePrismInstance(prism, 0x44FF44,  0),
-        //makePrismInstance(prism, 0x4444FF, -4),
-        //makePrismInstance(prism, 0xFF4444,  4),
-    ];*/
-
     function resizeRendererToDisplaySize(renderer) {
         const canvas = renderer.domElement;
         const width = canvas.clientWidth;
@@ -211,10 +136,7 @@ function main() {
 
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
-            //if(canvas.clientWidth > canvas.clientHeight)
-                camera.aspect = canvas.clientWidth / canvas.clientHeight;
-            //else
-                //camera.aspect = canvas.clientHeight / canvas.clientWidth;
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
         }
 
@@ -224,13 +146,6 @@ function main() {
             //fractal.rotation.x = rot;
             fractal.rotation.y = rot;
         });
-
-        /*prisms.forEach((prism, ndx) => {
-            const speed = 1 + ndx * .1;
-            const rot = time * speed / 2;
-            //prism.rotation.x = rot;
-            prism.rotation.y = rot;
-        });*/
 
         renderer.render(scene, camera);
 
