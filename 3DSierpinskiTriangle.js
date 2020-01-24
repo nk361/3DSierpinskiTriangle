@@ -22,7 +22,7 @@ function main() {
         scene.add(light);
     }
 
-    //mainHeight uses 960 as half of the desktop width to give a default prism height of about 2
+    //mainHeight uses 960 as half of the desktop width to give a default pyramid height of about 2
     //when on mobile, no move up by and main height * 5
     //when on desktop, 1.2 move up by and main height * 2.4
     //when on desktop, width is 1920
@@ -44,12 +44,12 @@ function main() {
     const mainHeight = canvas.clientWidth / 960 * (2 + ((canvas.clientWidth - 500) / 100) * 0.03);
     const moveUpBy = ((canvas.clientWidth - 500) / 100) * 0.09;
 
-    //the information I need to generate these prisms is their left, bottom, front corner point and their height
+    //the information I need to generate these pyramids is their left, bottom, front corner point and their height
     //height will be half the previous iteration's
     //the points I'll get are the previous bottom left front point, that same point but moved back half previous height, moved right half previous height, and moved up half previous height while also back and right one quarter previous height
-    //drawing five new prisms per one previous prism, 4 on the bottom, one on top
+    //drawing five new pyramids per one previous pyramid, 4 on the bottom, one on top
     //luckily the triangles are always made in the same vertex order
-    //I don't know if separate prisms will rotate at different rates
+    //I don't know if separate pyramids will rotate at different rates
     //I'm also unsure if I could make the entire shape loop correct by letting it connect the triangles
     //wait, yes! I can!
 
@@ -83,9 +83,9 @@ function main() {
     }
     fractal.vertices = vertices;
 
-    let amountOfPrisms = vertices.length / amountOfVerticesPerShape;
+    let amountOfPyramids = vertices.length / amountOfVerticesPerShape;
 
-    for(let i = 0; i < amountOfPrisms; i++) {
+    for(let i = 0; i < amountOfPyramids; i++) {
         fractal.faces.push(
             //front
             new THREE.Face3(0 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
@@ -101,10 +101,10 @@ function main() {
         );
     }
 
-    //Start with one large prism
-    //wait, could it be as easy as using the same code as the large prism but with a reduce by variable parameter?
-    //the size of prisms reduces by half each time
-    //four new prisms take the place of one old prism
+    //Start with one large pyramid
+    //wait, could it be as easy as using the same code as the large pyramid but with a reduce by variable parameter?
+    //the size of pyramids reduces by half each time
+    //four new pyramids take the place of one old pyramid
 
     function makeFractalInstance(fractal, color, x) {
         const material = new THREE.MeshBasicMaterial({color});
