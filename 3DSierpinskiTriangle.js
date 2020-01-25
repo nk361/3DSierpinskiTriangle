@@ -66,8 +66,8 @@ function main() {
             const pDFrozenLength = pD.length;
             for(let i = 0; i < pDFrozenLength; i++) {
                 const nextIterationVertices = pD[i].getNextIterationVertices();
-                for(let i = 0; i < nextIterationVertices.length; i++)
-                    pD.push(new PyramidData(nextIterationVertices[i].x, nextIterationVertices[i].y, nextIterationVertices[i].z, pD[0].height / 2));
+                for(let j = 0; j < nextIterationVertices.length; j++)
+                    pD.push(new PyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, pD[0].height / 2));
             }
 
             for(let i = 0; i < pDFrozenLength; i++)
@@ -76,7 +76,7 @@ function main() {
 
         vertices = [];
         for(let i = 0; i < pD.length; i++) {
-            let currentVertices = pD[i].generateVertices();
+            const currentVertices = pD[i].generateVertices();
             for(let j = 0; j < currentVertices.length; j++)
                 vertices.push(currentVertices[j]);
         }
@@ -106,8 +106,10 @@ function main() {
     //the size of pyramids reduces by half each time
     //four new pyramids take the place of one old pyramid
 
+    fractal.computeFaceNormals();
+
     function makeFractalInstance(fractal, color, x) {
-        const material = new THREE.MeshBasicMaterial({color});
+        const material = new THREE.MeshPhongMaterial({color});
 
         const frctl = new THREE.Mesh(fractal, material);
         scene.add(frctl);
