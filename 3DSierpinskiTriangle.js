@@ -23,26 +23,37 @@ function main() {
         scene.add(light);
     }
 
-    //mainHeight uses 960 as half of the desktop width to give a default pyramid height of about 2
-    //when on mobile, no move up by and main height * 5
-    //when on desktop, 1.2 move up by and main height * 2.4
-    //when on desktop, width is 1920
-    //when on mobile width is 500
-    //ratio between widths is 3.84
-    //ratio for multiplying main height is 2.08
-    //so I need to use the ratio of the widths to scale the two other variables by adding a step relative to the width ratio
-    //for every 3.84 over 500, subtract
-    //1420 may be too many small, insignificant steps
-    //142 steps for going between 5 and 2.4 along with 0 to 1.2
-    //2.6 / 142 is 0.018 and 1.2 / 142 is 0.008
-    //14.2 steps
-    //2.6 / 14.2 is 0.18 and 1.2 / 14.2 is 0.08
-    //main height * 5 - ((width - 500) / 100) * 0.18
-    //move up = ((width - 500) / 100) * 0.08
+    //Max size
+    //4.852
+    //Min size
+    //2.34375
+    //with the difference of
+    //2.50825
+
+    //4.852 - (x * 2.34375)//where x needs to be 0 when window is full size and
+    //x needs to be put in the range of 0 to 1
+    //maybe I should get the width of the window when at the biggest size and at the smallest size
+    //and make it 0 to 1 based on the space between them
+
+    //Max width
+    //1920
+    //Min width
+    //500
+    //with the difference of
+    //1420
+
+    //2.50825/1420
+    //0.0017663732 * 142 = 0.250825 size step
+
+    //1 * 142 unit of change over width
+
+    //mainHeight = 2.34375 + ((currentWidth - 500) / 142 * 0.250825)
+
     //I'll just leave these comments here so I know my reasoning for all this later
     //parameters have changed after testing, but the math is still relevant
 
-    const mainHeight = canvas.clientWidth / 960 * (2 + ((canvas.clientWidth - 500) / 100) * 0.03);
+    //const mainHeight = canvas.clientWidth / 960 * (2 + ((canvas.clientWidth - 500) / 100) * 0.03);
+    const mainHeight = 2.34375 + ((canvas.clientWidth - 500) / 142 * 0.250825);
     const moveUpBy = ((canvas.clientWidth - 500) / 100) * 0.09;
 
     //the information I need to generate these pyramids is their left, bottom, front corner point and their height
@@ -163,7 +174,7 @@ function main() {
             if(fractal.material.uniforms.delta.value > 100.53)//closest to 1 from cos(delta) to make the animation loop because cos(0) is 1
                 fractal.material.uniforms.delta.value = 0.0;
             else
-                fractal.material.uniforms.delta.value += 0.1;
+                fractal.material.uniforms.delta.value += 0.05;
         });
 
         renderer.render(scene, camera);
