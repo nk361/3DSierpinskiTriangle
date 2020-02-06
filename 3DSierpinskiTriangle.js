@@ -1,9 +1,10 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r112/build/three.module.js';
 import {PyramidData} from "./PyramidData.js";
+import {vertexShader, fragmentShader} from "./Shaders.js";
 
 function main() {
     const canvas = document.querySelector('#mainCanvas');
-    const renderer = new THREE.WebGLRenderer({canvas});
+    const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
 
     const fov = 75;
     const aspect = 2;  // the canvas default
@@ -106,10 +107,22 @@ function main() {
     //the size of pyramids reduces by half each time
     //four new pyramids take the place of one old pyramid
 
-    fractal.computeFaceNormals();
+    //fractal.computeFaceNormals();//for lighting on phong material
+    //fractal.computeVertexNormals();
 
     function makeFractalInstance(fractal, color, x) {
-        const material = new THREE.MeshPhongMaterial({color});
+        let uniforms = {
+            delta: {value: 0}
+        };
+
+        //const material = new THREE.MeshPhongMaterial({color});
+        //const material = new THREE.ShaderMaterial({color});//this somehow makes red
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: vertexShader(),
+            fragmentShader: fragmentShader()
+        });
 
         const frctl = new THREE.Mesh(fractal, material);
         scene.add(frctl);
