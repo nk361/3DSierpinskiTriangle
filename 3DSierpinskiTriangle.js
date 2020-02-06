@@ -160,6 +160,10 @@ function main() {
             const rot = time * speed / 2;
             //fractal.rotation.x = rot;
             fractal.rotation.y = rot;
+            if(fractal.material.uniforms.delta.value > 100.53)//closest to 1 from cos(delta) to make the animation loop because cos(0) is 1
+                fractal.material.uniforms.delta.value = 0.0;
+            else
+                fractal.material.uniforms.delta.value += 0.1;
         });
 
         renderer.render(scene, camera);
