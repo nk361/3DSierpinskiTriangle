@@ -1,13 +1,17 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r112/build/three.module.js';
-import {PyramidData} from "./PyramidData.js";
+import {NormalPyramidData} from "./NormalPyramidData.js";
+import {FillingPyramidData} from "./FillingPyramidData.js";
 import {vertexShader, fragmentShader} from "./Shaders.js";
 
 function main() {
     const canvas = document.querySelector('#mainCanvas');
-    const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
+    const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true
+    });
 
     const fov = 75;
-    const aspect = 2;  // the canvas default
+    const aspect = 2;//the canvas default
     const near = 0.1;
     const far = 100;
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
@@ -23,9 +27,9 @@ function main() {
         scene.add(light);
     }
 
-    //Max size
+    //Max height
     //4.852
-    //Min size
+    //Min height
     //2.34375
     //with the difference of
     //2.50825
@@ -65,34 +69,60 @@ function main() {
     //I'm also unsure if I could make the entire shape loop correct by letting it connect the triangles
     //wait, yes! I can!
 
-    let pD = [new PyramidData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
+    let showData = [true, false];//normal pyramid, filling pyramid
 
     const fractal = new THREE.Geometry();
     let vertices = [];
-
     let amountOfVerticesPerShape = 5;//fractal.vertices.length;
 
     //change the amount of iterations to perform here
-    for(let iterations = 8; iterations > 0; iterations--) {
-        if(iterations > 1) {
-            const pDFrozenLength = pD.length;
-            for(let i = 0; i < pDFrozenLength; i++) {
-                const nextIterationVertices = pD[i].getNextIterationVertices();
-                for(let j = 0; j < nextIterationVertices.length; j++)
-                    pD.push(new PyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, pD[0].height / 2));
+    let amountOfIterations = 8;
+
+    if(showData[0]) {
+        let nPD = [new NormalPyramidData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
+
+        for(let iterations = amountOfIterations; iterations > 0; iterations--) {
+            if(iterations > 1) {
+                const pDFrozenLength = nPD.length;
+                for(let i = 0; i < pDFrozenLength; i++) {
+                    const nextIterationVertices = nPD[i].getNextIterationVertices();
+                    for(let j = 0; j < nextIterationVertices.length; j++)
+                        nPD.push(new NormalPyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, nPD[0].height / 2));
+                }
+                for(let i = 0; i < pDFrozenLength; i++)
+                    nPD.shift();
             }
-
-            for(let i = 0; i < pDFrozenLength; i++)
-                pD.shift();
+            vertices = [];
+            for(let i = 0; i < nPD.length; i++) {
+                const currentVertices = nPD[i].generateVertices();
+                for(let j = 0; j < currentVertices.length; j++)
+                    vertices.push(currentVertices[j]);
+            }
         }
+    }
 
-        vertices = [];
-        for(let i = 0; i < pD.length; i++) {
-            const currentVertices = pD[i].generateVertices();
+    if(showData[1]) {
+        let fPD = [new FillingPyramidData(-(mainHeight / 2) + (mainHeight / 4), -(mainHeight / 2) + (mainHeight / 4 * 2) + moveUpBy, (mainHeight / 2) - (mainHeight / 4), mainHeight / 2)];
+
+        let previousLength = 1;
+        for(let iterations = amountOfIterations; iterations > 0; iterations--) {
+            if(iterations > 1) {
+                const fDFrozenLength = fPD.length;
+                for(let i = 0; i < previousLength; i++) {
+                    const nextIterationVertices = fPD[fDFrozenLength - previousLength + i].getNextIterationVertices();
+                    for(let j = 0; j < nextIterationVertices.length; j++)
+                        fPD.push(new FillingPyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, fPD[fDFrozenLength - previousLength].height / 2));
+                }
+                previousLength = fPD.length - fDFrozenLength;
+            }
+        }
+        for(let i = 0; i < fPD.length; i++) {
+            const currentVertices = fPD[i].generateVertices();
             for(let j = 0; j < currentVertices.length; j++)
                 vertices.push(currentVertices[j]);
         }
     }
+
     fractal.vertices = vertices;
 
     let amountOfPyramids = vertices.length / amountOfVerticesPerShape;
@@ -157,6 +187,25 @@ function main() {
         return needResize;
     }
 
+    function clearObject(obj) {
+        while(obj.children.length > 0){
+            clearThree(obj.children[0]);
+            obj.remove(obj.children[0]);
+        }
+        if(obj.geometry) obj.geometry.dispose();
+
+        if(obj.material){
+            //in case of map, bumpMap, normalMap, envMap ...
+            Object.keys(obj.material).forEach(prop => {
+                if(!obj.material[prop])
+                    return;
+                if(typeof obj.material[prop].dispose === 'function')
+                    obj.material[prop].dispose()
+            });
+            obj.material.dispose()
+        }
+    }
+
     function render(time) {
         time *= 0.001;
 
@@ -166,15 +215,16 @@ function main() {
             camera.updateProjectionMatrix();
         }
 
-        fractals.forEach((fractal, ndx) => {
+        fractals.forEach((frctl, ndx) => {
             const speed = 1 + ndx * .1;
             const rot = time * speed / 2;
             //fractal.rotation.x = rot;
-            fractal.rotation.y = rot;
-            if(fractal.material.uniforms.delta.value > 100.53)//closest to 1 from cos(delta) to make the animation loop because cos(0) is 1
-                fractal.material.uniforms.delta.value = 0.0;
+            frctl.rotation.y = rot;
+            //fractal.rotation.z = rot;
+            if(frctl.material.uniforms.delta.value > 100.53)//closest to 1 from cos(delta) to make the animation loop because cos(0) is 1
+                frctl.material.uniforms.delta.value = 0.0;
             else
-                fractal.material.uniforms.delta.value += 0.05;
+                frctl.material.uniforms.delta.value += 0.05;
         });
 
         renderer.render(scene, camera);

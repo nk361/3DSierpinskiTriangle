@@ -27,6 +27,8 @@ export function fragmentShader() {//executes per pixel
         
             gl_FragColor = vec4(red, green, blue, 1.0);//rgba used to set the color of the current pixel, currently all red
             
+            //I wonder what other gl variables you can set
+            
             //I'll need to set the color based on the y value in the position and maybe some other cool patterns to try
         }
     `
