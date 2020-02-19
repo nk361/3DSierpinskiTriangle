@@ -69,79 +69,102 @@ function main() {
     //I'm also unsure if I could make the entire shape loop correct by letting it connect the triangles
     //wait, yes! I can!
 
-    let showData = [true, false];//normal pyramid, filling pyramid
+    let showData = [true, false];//normal pyramid, filling pyramid, maybe another in the future
 
     const fractal = new THREE.Geometry();
     let vertices = [];
     let amountOfVerticesPerShape = 5;//fractal.vertices.length;
 
     //change the amount of iterations to perform here
-    let amountOfIterations = 8;
+    let amountOfIterations = 1;//8;
 
-    if(showData[0]) {
-        let nPD = [new NormalPyramidData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
+    function updateVertices() {
+        //fractal.vertices = [];
 
-        for(let iterations = amountOfIterations; iterations > 0; iterations--) {
-            if(iterations > 1) {
-                const pDFrozenLength = nPD.length;
-                for(let i = 0; i < pDFrozenLength; i++) {
-                    const nextIterationVertices = nPD[i].getNextIterationVertices();
-                    for(let j = 0; j < nextIterationVertices.length; j++)
-                        nPD.push(new NormalPyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, nPD[0].height / 2));
+        //console.log("iterations is " + amountOfIterations);
+
+        vertices = [];
+        if(showData[0]) {
+            let nPD = [new NormalPyramidData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
+
+            for(let iterations = amountOfIterations; iterations > 0; iterations--) {
+                if(iterations > 1) {
+                    const nPDFrozenLength = nPD.length;
+                    for(let i = 0; i < nPDFrozenLength; i++) {
+                        const nextIterationVertices = nPD[i].getNextIterationVertices();
+                        for(let j = 0; j < nextIterationVertices.length; j++) {
+                            nPD.push(new NormalPyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, nPD[0].height / 2));
+                        }
+
+                    }
+                    for(let i = 0; i < nPDFrozenLength; i++)
+                        nPD.shift();
                 }
-                for(let i = 0; i < pDFrozenLength; i++)
-                    nPD.shift();
+                vertices = [];
+                for(let i = 0; i < nPD.length; i++) {
+                    const currentVertices = nPD[i].generateVertices();
+                    for(let j = 0; j < currentVertices.length; j++)
+                        vertices.push(currentVertices[j]);
+                }
             }
-            vertices = [];
-            for(let i = 0; i < nPD.length; i++) {
-                const currentVertices = nPD[i].generateVertices();
+        }
+
+        if(showData[1] && amountOfIterations !== 1) {//there is no void to fill on 1 iteration of the original code
+            let fPD = [new FillingPyramidData(-(mainHeight / 2) + (mainHeight / 4), -(mainHeight / 2) + (mainHeight / 4 * 2) + moveUpBy, (mainHeight / 2) - (mainHeight / 4), mainHeight / 2)];
+
+            let previousLength = 1;
+            for(let iterations = amountOfIterations - 1; iterations > 0; iterations--) {
+                if(iterations > 1) {
+                    const fPDFrozenLength = fPD.length;
+                    for(let i = 0; i < previousLength; i++) {
+                        const nextIterationVertices = fPD[fPDFrozenLength - previousLength + i].getNextIterationVertices();
+                        for(let j = 0; j < nextIterationVertices.length; j++)
+                            fPD.push(new FillingPyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, fPD[fPDFrozenLength - previousLength].height / 2));
+                    }
+                    previousLength = fPD.length - fPDFrozenLength;
+                }
+            }
+            for(let i = 0; i < fPD.length; i++) {
+                const currentVertices = fPD[i].generateVertices();
                 for(let j = 0; j < currentVertices.length; j++)
                     vertices.push(currentVertices[j]);
             }
         }
+
+        //fractal.vertices = vertices;
+
+        //console.log(vertices.length + " how long?");
+
+        return vertices;
     }
+    fractal.vertices = updateVertices();
 
-    if(showData[1]) {
-        let fPD = [new FillingPyramidData(-(mainHeight / 2) + (mainHeight / 4), -(mainHeight / 2) + (mainHeight / 4 * 2) + moveUpBy, (mainHeight / 2) - (mainHeight / 4), mainHeight / 2)];
+    function updateFaces(vertLength) {
+        //fractal.faces = [];
+        let faces = [];
 
-        let previousLength = 1;
-        for(let iterations = amountOfIterations; iterations > 0; iterations--) {
-            if(iterations > 1) {
-                const fDFrozenLength = fPD.length;
-                for(let i = 0; i < previousLength; i++) {
-                    const nextIterationVertices = fPD[fDFrozenLength - previousLength + i].getNextIterationVertices();
-                    for(let j = 0; j < nextIterationVertices.length; j++)
-                        fPD.push(new FillingPyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, fPD[fDFrozenLength - previousLength].height / 2));
-                }
-                previousLength = fPD.length - fDFrozenLength;
-            }
+        let amountOfPyramids = vertLength / amountOfVerticesPerShape;
+
+        //console.log("amount of p " + amountOfPyramids);
+
+        for(let i = 0; i < amountOfPyramids; i++) {
+            faces.push(
+                //front
+                new THREE.Face3(0 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
+                //right
+                new THREE.Face3(1 + i * amountOfVerticesPerShape, 4 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
+                //back
+                new THREE.Face3(4 + i * amountOfVerticesPerShape, 3 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
+                //left
+                new THREE.Face3(3 + i * amountOfVerticesPerShape, 0 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
+                //bottom
+                new THREE.Face3(3 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape, 0 + i * amountOfVerticesPerShape),
+                new THREE.Face3(3 + i * amountOfVerticesPerShape, 4 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape)
+            );
         }
-        for(let i = 0; i < fPD.length; i++) {
-            const currentVertices = fPD[i].generateVertices();
-            for(let j = 0; j < currentVertices.length; j++)
-                vertices.push(currentVertices[j]);
-        }
+        return faces;
     }
-
-    fractal.vertices = vertices;
-
-    let amountOfPyramids = vertices.length / amountOfVerticesPerShape;
-
-    for(let i = 0; i < amountOfPyramids; i++) {
-        fractal.faces.push(
-            //front
-            new THREE.Face3(0 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
-            //right
-            new THREE.Face3(1 + i * amountOfVerticesPerShape, 4 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
-            //back
-            new THREE.Face3(4 + i * amountOfVerticesPerShape, 3 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
-            //left
-            new THREE.Face3(3 + i * amountOfVerticesPerShape, 0 + i * amountOfVerticesPerShape, 2 + i * amountOfVerticesPerShape),
-            //bottom
-            new THREE.Face3(3 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape, 0 + i * amountOfVerticesPerShape),
-            new THREE.Face3(3 + i * amountOfVerticesPerShape, 4 + i * amountOfVerticesPerShape, 1 + i * amountOfVerticesPerShape)
-        );
-    }
+    fractal.faces = updateFaces(fractal.vertices.length);
 
     //Start with one large pyramid
     //wait, could it be as easy as using the same code as the large pyramid but with a reduce by variable parameter?
@@ -172,7 +195,7 @@ function main() {
         return frctl;
     }
 
-    const fractals = [
+    const fractals = [//TODO I think I need functions that create the shape for the first time and then functions to update them using set() and the updated needed variables
         makeFractalInstance(fractal, 0x44FF44, 0)
     ];
 
@@ -206,6 +229,14 @@ function main() {
         }
     }
 
+    let timeInterval = 5;
+    let lastTime = 0;
+    //for(let i = 0; i < fractals.length; i++)
+        //fractals[i].dynamic = true;
+    /*fractals.forEach((frctl, ndx) => {
+        frctl.mesh.geometry.dynamic = true;
+    });*/
+
     function render(time) {
         time *= 0.001;
 
@@ -225,7 +256,114 @@ function main() {
                 frctl.material.uniforms.delta.value = 0.0;
             else
                 frctl.material.uniforms.delta.value += 0.05;
+
+            if(time - lastTime > timeInterval) {
+                lastTime = time;
+
+                if (amountOfIterations === 8) {
+                    amountOfIterations = 1;
+
+                    if(showData[0] && !showData[1]) {//change to filled in
+                        amountOfIterations++;//first iteration of filled in has no space to fill and so there is nothing
+                        showData[0] = false;
+                        showData[1] = true;
+                    }
+                    else if(!showData[0] && showData[1]) {//change to both
+                        showData[0] = true;
+                        //showData[1] is already true
+                    }
+                    else {//change back to just the normal
+                        showData[0] = true;
+                        showData[1] = false;
+                    }
+                }
+                else
+                    amountOfIterations++;
+
+                //console.log("Before " + frctl.geometry.vertices.length);
+                frctl.geometry.vertices = updateVertices();
+                frctl.geometry.verticesNeedUpdate = true;
+                //console.log("After " + frctl.geometry.vertices.length);
+
+                //removing this part seems to cause an infinite loop of warnings and a massive memory leak, killing the single chrome tab task helped
+                //frctl.geometry.faces = [];
+                //console.log("Before face " + frctl.geometry.faces.length);
+                frctl.geometry.faces =  updateFaces(frctl.geometry.vertices.length);
+                frctl.geometry.groupsNeedUpdate = true;
+                //console.log("After face " + frctl.geometry.faces.length);
+
+                scene.remove(frctl);
+                let nextIt = new THREE.Geometry();
+                nextIt.vertices = frctl.geometry.vertices;
+                nextIt.faces = frctl.geometry.faces;
+
+                let f = makeFractalInstance(nextIt, 0x44FF44, 0);
+                f.rotation.y = rot;
+                frctl = f;
+                scene.add(frctl);
+                //fractals.pop();
+                fractals.push(frctl);
+                fractals.shift();
+
+                //console.log(fractals);
+
+                //frctl.geometry.__dirtyVertices = true;
+            }
+
+            /*if(time - lastTime > timeInterval) {
+                lastTime = time;
+
+                if(amountOfIterations === 8)
+                    amountOfIterations = 1;
+                else
+                    amountOfIterations++;
+
+                //console.log(amountOfIterations);
+
+                //frctl.dynamic = true;
+
+                //console.log(frctl.vertices);
+
+                //let newVertices = updateVertices();
+                //for(let i = 0; i < newVertices.length; i++) {
+                    //console.log(frctl.vertices.length + " yeeee");
+                    //frctl.vertices[i].set(newVertices[i]);
+                //}
+                //frctl.vertices = updateVertices();
+                //console.log("how about here? " + frctl.vertices.length);
+                //frctl.verticesNeedUpdate = true;
+
+                //updateFaces(frctl.vertices.length);
+                //frctl.groupsNeedUpdate = true;
+            }*/
+
+            //console.log(time);
+
+            //console.log(frctl.material.uniforms.delta.value % 10);
+
+            //if(Math.floor(frctl.material.uniforms.delta.value % 10) == 0) {
+                //console.log("Testin");
+            //}
         });
+
+        /*if(time - lastTime > timeInterval) {
+            lastTime = time;
+
+            if (amountOfIterations === 8)
+                amountOfIterations = 1;
+            else
+                amountOfIterations++;
+
+            //console.log("Before " + fractal.vertices.length);
+            fractal.vertices = updateVertices();
+            fractal.geometry.verticesNeedUpdate = true;
+            //console.log("After " + fractal.vertices.length);
+
+            //console.log("Before face " + fractal.faces.length);
+            updateFaces(fractal.vertices.length);
+            fractal.groupsNeedUpdate = true;
+            //console.log("After face  " + fractal.faces.length);
+        }*/
 
         renderer.render(scene, camera);
 
