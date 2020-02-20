@@ -174,6 +174,8 @@ function main() {
     //fractal.computeFaceNormals();//for lighting on phong material
     //fractal.computeVertexNormals();
 
+    let wireframeEnabled = false;
+
     function makeFractalInstance(fractal, color, x) {
         let uniforms = {
             delta: {value: 0}
@@ -185,7 +187,8 @@ function main() {
         const material = new THREE.ShaderMaterial({
             uniforms: uniforms,
             vertexShader: vertexShader(),
-            fragmentShader: fragmentShader()
+            fragmentShader: fragmentShader(),
+            wireframe: wireframeEnabled
         });
 
         const frctl = new THREE.Mesh(fractal, material);
@@ -275,6 +278,7 @@ function main() {
                     else {//change back to just the normal
                         showData[0] = true;
                         showData[1] = false;
+                        wireframeEnabled = !wireframeEnabled;
                     }
                 }
                 else
