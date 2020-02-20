@@ -77,6 +77,7 @@ function main() {
 
     //change the amount of iterations to perform here
     let amountOfIterations = 1;//8;
+    let maxIterations = 7;
 
     function updateVertices() {
         //fractal.vertices = [];
@@ -95,7 +96,6 @@ function main() {
                         for(let j = 0; j < nextIterationVertices.length; j++) {
                             nPD.push(new NormalPyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, nPD[0].height / 2));
                         }
-
                     }
                     for(let i = 0; i < nPDFrozenLength; i++)
                         nPD.shift();
@@ -260,7 +260,7 @@ function main() {
             if(time - lastTime > timeInterval) {
                 lastTime = time;
 
-                if (amountOfIterations === 8) {
+                if (amountOfIterations === maxIterations) {
                     amountOfIterations = 1;
 
                     if(showData[0] && !showData[1]) {//change to filled in
