@@ -24,8 +24,8 @@ export function fragmentShader() {//executes per pixel
         vec3 hsb2rgb( in vec3 c ){
             vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),
                                      6.0)-3.0)-1.0,
-                             0.0,
-                             1.0 );
+                                     0.0,
+                                     1.0 );
             rgb = rgb*rgb*(3.0-2.0*rgb);
             return c.z * mix(vec3(1.0), rgb, c.y);
         }
@@ -38,7 +38,7 @@ export function fragmentShader() {//executes per pixel
         
             // We map x (0.0 - 1.0) to the hue (0.0 - 1.0)
             // And the y (0.0 - 1.0) to the brightness
-            vec3 color = hsb2rgb(vec3(pos.y / 4.0 - delta / 15.0,1.0,1.0));//changed y to 1.0 to keep only colors and replaced x with y to change from horizontal to vertical
+            vec3 color = hsb2rgb(vec3(pos.y / 4.0 - delta / 15.0,1.0,1.0));//changed y to 1.0 to keep only colors and replaced x with y to change from horizontal to vertical, subtracted delta for movement direction
         
             gl_FragColor = vec4(color, 1.0);//rgba used to set the color of the current pixel, currently all red
             
