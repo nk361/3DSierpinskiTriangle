@@ -56,50 +56,33 @@ function main() {
     //I'll just leave these comments here so I know my reasoning for all this later
     //parameters have changed after testing, but the math is still relevant
 
-    //const mainHeight = canvas.clientWidth / 960 * (2 + ((canvas.clientWidth - 500) / 100) * 0.03);
     const mainHeight = 2.34375 + ((canvas.clientWidth - 500) / 142 * 0.250825);
     const moveUpBy = ((canvas.clientWidth - 500) / 100) * 0.09;
-
-    //the information I need to generate these pyramids is their left, bottom, front corner point and their height
-    //height will be half the previous iteration's
-    //the points I'll get are the previous bottom left front point, that same point but moved back half previous height, moved right half previous height, and moved up half previous height while also back and right one quarter previous height
-    //drawing five new pyramids per one previous pyramid, 4 on the bottom, one on top
-    //luckily the triangles are always made in the same vertex order
-    //I don't know if separate pyramids will rotate at different rates
-    //I'm also unsure if I could make the entire shape loop correct by letting it connect the triangles
-    //wait, yes! I can!
 
     let showData = [true, false];//normal pyramid, filling pyramid, maybe another in the future
 
     const fractal = new THREE.Geometry();
     let vertices = [];
-    let amountOfVerticesPerShape = 5;//fractal.vertices.length;
+    let amountOfVerticesPerShape = 5;
 
     //change the amount of iterations to perform here
-    let amountOfIterations = 1;//8;
+    let amountOfIterations = 1;//start animation on this amount
     let maxIterations = 7;
 
-    let nPD;// = [new NormalPyramidData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
-    let fPD;// = [new FillingPyramidData(-(mainHeight / 2) + (mainHeight / 4), -(mainHeight / 2) + (mainHeight / 4 * 2) + moveUpBy, (mainHeight / 2) - (mainHeight / 4), mainHeight / 2)];
+    let nPD;
+    let fPD;
 
     function updateVertices(generateFromScratch = true) {
-        //fractal.vertices = [];
-
-        //console.log("iterations is " + amountOfIterations);
-
         let iterations;
 
-        if(generateFromScratch) {
+        if(generateFromScratch) {//Generating from scratch
             nPD = [new NormalPyramidData(-(mainHeight / 2), -(mainHeight / 2) + moveUpBy, (mainHeight / 2), mainHeight)];
             fPD = [new FillingPyramidData(-(mainHeight / 2) + (mainHeight / 4), -(mainHeight / 2) + (mainHeight / 4 * 2) + moveUpBy, (mainHeight / 2) - (mainHeight / 4), mainHeight / 2)];
             iterations = 0;
             vertices = [];
-            //console.log("Generating from scratch");
         }
-        else {
+        else//Reused data!!!
             iterations = amountOfIterations - 1;//TODO this needs fixed to allow multiple iterations to generate on old data, performing multiple iterations
-            //console.log("Reused data!!!");
-        }
 
         if(showData[0]) {
             for(let iteration = amountOfIterations; iteration > iterations; iteration--) {
@@ -124,37 +107,18 @@ function main() {
         }
 
         if(showData[1] && amountOfIterations !== 1) {//there is no void to fill on 1 iteration of the original code
-            //fPD = [new FillingPyramidData(-(mainHeight / 2) + (mainHeight / 4), -(mainHeight / 2) + (mainHeight / 4 * 2) + moveUpBy, (mainHeight / 2) - (mainHeight / 4), mainHeight / 2)];
-            //let previousLength = fPD.length === 1 ? fPD.length : fPD.length - fPD.length / 5;
-            //let previousLength = 1;
-            //for(let i = 0; i < iterations - 1; i++)//TODO previous length should follow the pattern of 1 6 WAIT I think previous length is not supposed to be the actual length of the list before, but instead the previous amount added so that a new layer can generate based on just the newest layer? so the pattern would be 1 5 25 etc MUST be based on the fPD that is already existing though
-                //previousLength += Math.pow(i, 5);
-            //let loopLimit = 10;
-            let previousLength = 1;
-            for(let i = 0, val = 1; val < fPD.length; i++, val = Math.pow(5, i)) {
-                previousLength = val;
-                //console.log("i is " + i + " and becoming " + Math.pow(5, i));//TODO the problem is that I need an exponent that increments by one while I also need a way to only set the previousLength value if it is NOT greater than fPD.length
-                /*if(i > loopLimit) {
-                    console.log("loop limit reached");
-                    break;//it just says i is 0 over and over, infinite loop
-                }*/
-
-            }
-
-            //console.log("1 Previous length is " + previousLength + " with iterations as " + iterations);
-            //console.log("iteration = " + (amountOfIterations - 1) + " and iterations = " + (iterations - 1);
+            let previousAddedAmount = 1;//this needs to be set to 1 here or else the value does not change
+            for(let i = 0, val = 1; val < fPD.length; i++, val = Math.pow(5, i))
+                previousAddedAmount = val;
             for(let iteration = amountOfIterations - 1; iteration > (iterations - 1 === -1 ? 0 : iterations - 1); iteration--) {
                 if(iteration > 1) {
                     const fPDFrozenLength = fPD.length;
-                    //console.log(fPDFrozenLength);
-                    for(let i = 0; i < previousLength; i++) {
-                        //console.log("Bad index is " + (fPDFrozenLength - previousLength + i));
-                        const nextIterationVertices = fPD[fPDFrozenLength - previousLength + i].getNextIterationVertices();
+                    for(let i = 0; i < previousAddedAmount; i++) {
+                        const nextIterationVertices = fPD[fPDFrozenLength - previousAddedAmount + i].getNextIterationVertices();
                         for(let j = 0; j < nextIterationVertices.length; j++)
-                            fPD.push(new FillingPyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, fPD[fPDFrozenLength - previousLength].height / 2));
+                            fPD.push(new FillingPyramidData(nextIterationVertices[j].x, nextIterationVertices[j].y, nextIterationVertices[j].z, fPD[fPDFrozenLength - previousAddedAmount].height / 2));
                     }
-                    previousLength = fPD.length - fPDFrozenLength;
-                    //console.log("2 Previous length is " + previousLength);
+                    previousAddedAmount = fPD.length - fPDFrozenLength;
                 }
             }
             for(let i = 0; i < fPD.length; i++) {
@@ -163,24 +127,14 @@ function main() {
                     vertices.push(currentVertices[j]);
             }
         }
-
-        //fractal.vertices = vertices;
-
-        //console.log(vertices.length + " how long?");
-
         return vertices;
     }
     fractal.vertices = updateVertices();
 
     function updateFaces(vertLength) {
-        //fractal.faces = [];
-
         let faces = [];
 
         let amountOfPyramids = vertLength / amountOfVerticesPerShape;
-
-        //console.log("amount of p " + amountOfPyramids);
-
         for(let i = 0; i < amountOfPyramids; i++) {
             faces.push(
                 //front
@@ -200,29 +154,15 @@ function main() {
     }
     fractal.faces = updateFaces(fractal.vertices.length);
 
-    //Start with one large pyramid
-    //wait, could it be as easy as using the same code as the large pyramid but with a reduce by variable parameter?
-    //the size of pyramids reduces by half each time
-    //four new pyramids take the place of one old pyramid
-
-    //fractal.computeFaceNormals();//for lighting on phong material
-    //fractal.computeVertexNormals();
-
-    //let wireframeEnabled = false;
-
     function makeFractalInstance(fractal, color, x) {
         let uniforms = {
             delta: {value: 0}
         };
 
-        //const material = new THREE.MeshPhongMaterial({color});
-        //const material = new THREE.ShaderMaterial({color});//this somehow makes red
-
         const material = new THREE.ShaderMaterial({
             uniforms: uniforms,
             vertexShader: vertexShader(),
             fragmentShader: fragmentShader(),
-            //wireframe: wireframeEnabled
         });
 
         const frctl = new THREE.Mesh(fractal, material);
@@ -264,13 +204,8 @@ function main() {
 
     let timeInterval = 5;
     let lastTime = 0;
-    //for(let i = 0; i < fractals.length; i++)
-        //fractals[i].dynamic = true;
-    /*fractals.forEach((frctl, ndx) => {
-        frctl.mesh.geometry.dynamic = true;
-    });*/
 
-    let previousSettings = [showData[0], showData[1], amountOfIterations];//taking advantage of dynamic, multitype "array" in JavaScript
+    let previousSettings = [showData[0], showData[1], amountOfIterations];//taking advantage of dynamic, multitype "array"s in JavaScript
 
     function render(time) {
         time *= 0.001;
@@ -311,7 +246,6 @@ function main() {
                     else {//change back to just the normal
                         showData[0] = true;
                         showData[1] = false;
-                        //wireframeEnabled = !wireframeEnabled;
                     }
                 }
                 else
@@ -339,7 +273,7 @@ function main() {
                 fractals.shift();
 
                 scene.remove(outlines[ndx]);
-                let out = makeOutlineInstance(f, 0x4F4F4F, 0);//currently this shows the new outline, but it never gets rid of the old one
+                let out = makeOutlineInstance(f, 0x4F4F4F, 0);
                 out.rotation.y = rot;
                 scene.add(out);
                 outlines.push(out);
@@ -349,61 +283,7 @@ function main() {
                 previousSettings[1] = showData[1];
                 previousSettings[2] = amountOfIterations;
             }
-
-            /*if(time - lastTime > timeInterval) {
-                lastTime = time;
-
-                if(amountOfIterations === 8)
-                    amountOfIterations = 1;
-                else
-                    amountOfIterations++;
-
-                //console.log(amountOfIterations);
-
-                //frctl.dynamic = true;
-
-                //console.log(frctl.vertices);
-
-                //let newVertices = updateVertices();
-                //for(let i = 0; i < newVertices.length; i++) {
-                    //console.log(frctl.vertices.length + " yeeee");
-                    //frctl.vertices[i].set(newVertices[i]);
-                //}
-                //frctl.vertices = updateVertices();
-                //console.log("how about here? " + frctl.vertices.length);
-                //frctl.verticesNeedUpdate = true;
-
-                //updateFaces(frctl.vertices.length);
-                //frctl.groupsNeedUpdate = true;
-            }*/
-
-            //console.log(time);
-
-            //console.log(frctl.material.uniforms.delta.value % 10);
-
-            //if(Math.floor(frctl.material.uniforms.delta.value % 10) == 0) {
-                //console.log("Testin");
-            //}
         });
-
-        /*if(time - lastTime > timeInterval) {
-            lastTime = time;
-
-            if (amountOfIterations === 8)
-                amountOfIterations = 1;
-            else
-                amountOfIterations++;
-
-            //console.log("Before " + fractal.vertices.length);
-            fractal.vertices = updateVertices();
-            fractal.geometry.verticesNeedUpdate = true;
-            //console.log("After " + fractal.vertices.length);
-
-            //console.log("Before face " + fractal.faces.length);
-            updateFaces(fractal.vertices.length);
-            fractal.groupsNeedUpdate = true;
-            //console.log("After face  " + fractal.faces.length);
-        }*/
 
         renderer.render(scene, camera);
 
