@@ -60,6 +60,7 @@ function main() {
     const moveUpBy = ((canvas.clientWidth - 500) / 100) * 0.09;
 
     let showData = [true, false];//normal pyramid, filling pyramid, maybe another in the future
+    let showOutline = false;
 
     const fractal = new THREE.Geometry();
     let vertices = [];
@@ -177,7 +178,8 @@ function main() {
         let edgeMaterial = new THREE.LineBasicMaterial({ color });
         let wireframe = new THREE.LineSegments(edgeGeometry, edgeMaterial);
 
-        scene.add(wireframe);
+        if(showOutline)
+            scene.add(wireframe);
 
         wireframe.position.x = x;
         return wireframe;
@@ -221,7 +223,8 @@ function main() {
             const rot = time * speed / 2;
             //fractal.rotation.x = rot;
             frctl.rotation.y = rot;
-            outlines[ndx].rotation.y = rot;
+            if(showOutline)
+                outlines[ndx].rotation.y = rot;
             //fractal.rotation.z = rot;
             if(frctl.material.uniforms.delta.value > 100.53)//closest to 1 from cos(delta) to make the animation loop because cos(0) is 1
                 frctl.material.uniforms.delta.value = 0.0;
@@ -272,12 +275,14 @@ function main() {
                 fractals.push(frctl);
                 fractals.shift();
 
-                scene.remove(outlines[ndx]);
-                let out = makeOutlineInstance(f, 0x4F4F4F, 0);
-                out.rotation.y = rot;
-                scene.add(out);
-                outlines.push(out);
-                outlines.shift();
+                if(showOutline) {
+                    scene.remove(outlines[ndx]);
+                    let out = makeOutlineInstance(f, 0x4F4F4F, 0);
+                    out.rotation.y = rot;
+                    scene.add(out);
+                    outlines.push(out);
+                    outlines.shift();
+                }
 
                 previousSettings[0] = showData[0];//use this to check whether it is safe to reuse old mesh data for efficiency sake
                 previousSettings[1] = showData[1];

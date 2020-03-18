@@ -1,13 +1,14 @@
 export function vertexShader() {//executes per vertex
     return `
         varying vec3 pos;//varying sends this to the fragment shader, a position to let the color change related to it
+        uniform float delta;
         
         void main()
         {
             pos = position;
             
             vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);//position is the position of the vertex while the modelViewMatrix is the position of the model in the scene
-            gl_Position = projectionMatrix * modelViewPosition;//using the camera position to get the camera's relationship to the model in the scene, gl_Position is the exact vertex position in our scene
+            gl_Position = projectionMatrix * modelViewPosition + vec4((1.0 + cos(pos.x + delta)) / 2.0 / 2.0, 0.0, 0.0, 0.0);//using the camera position to get the camera's relationship to the model in the scene, gl_Position is the exact vertex position in our scene
         }
     `
 }
