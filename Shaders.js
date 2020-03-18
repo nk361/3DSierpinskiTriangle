@@ -8,7 +8,7 @@ export function vertexShader() {//executes per vertex
             pos = position;
             
             vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);//position is the position of the vertex while the modelViewMatrix is the position of the model in the scene
-            gl_Position = projectionMatrix * modelViewPosition + vec4((1.0 + cos(pos.x + delta)) / 2.0 / 2.0, 0.0, 0.0, 0.0);//using the camera position to get the camera's relationship to the model in the scene, gl_Position is the exact vertex position in our scene
+            gl_Position = projectionMatrix * modelViewPosition + vec4((1.0 + cos(pos.y * 4.0 + delta)) / 2.0, 0.0, 0.0, 0.0);//using the camera position to get the camera's relationship to the model in the scene, gl_Position is the exact vertex position in our scene
         }
     `
 }
